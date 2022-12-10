@@ -21,6 +21,7 @@ socket.addEventListener("message", (message) => {
     messageList.append(li);
 });
 
+
 socket.addEventListener("close", () => {
     console.log("Disconnected from Server ❌");
 });
