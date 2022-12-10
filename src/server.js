@@ -23,19 +23,51 @@ const wss = new WebSocket.Server({ server });
 // }
 // wss.on("connection", handleConnection);
 
-function onSocketMessage(message) {
-    console.log(message);
+function onSocketClose() {
+    console.log("Disconnected from the Browser ❌");
 }
 
+// function onSocketMessage(message) {
+//     console.log(message);
+// }
+
+const sockets = [];
+
 wss.on("connection", (socket) => {
+    sockets.push(socket);
+    socket["nickname"] = "Anon";
     //console.log(socket);
     console.log("Connected to Browser ✅");
-    socket.on("close", onSocketMessage);
-    socket.on("message", (message) => {
+    socket.on("close", onSocketClose);
+    socket.on("message", (msg) => {
         //console.log(message);
-        console.log(message.toString('utf8'))
+        const message = JSON.parse(msg);
+        //console.log(parsed, message.toString());
+        switch (message.type) {
+            case "new_message" :
+                sockets.forEach((aSocket) => 
+                    aSocket.send(`${socket.nickname} : ${message.payload}`)
+                );
+            break;
+            case "nickname" :
+                //console.log(message.payload);
+                socket["nickname"] = message.payload;
+            break;
+        }
+        //socket.send(message);
+        //console.log(message.toString('utf8'))
     });
-    socket.send("hello");
+    //socket.send("hello");
 });
 
 server.listen(3000, handleListen);
+
+{
+    type: "message";
+    payload: "hello";
+}
+
+{
+    type: "nickname";
+    payload: "nico";
+}
