@@ -1,5 +1,6 @@
 import http from "http";
-import WebSocket from "ws";
+//import WebSocket from "ws";
+import SocketIO from "socket.io";
 import express from "express";
 
 const app = express();
@@ -12,24 +13,37 @@ app.use("/public", express.static(__dirname + "/public"));
 app.get("/", (req, res) => res.render("home"));
 app.get("/*", (req, res) => res.redirect("/"));
 
-const handleListen = () => console.log(`Listening on http://localhost:3000`);
 //app.listen(3000, handleListen);
 
-const server = http.createServer(app);  //http 서버
-const wss = new WebSocket.Server({ server });
+const httpServer = http.createServer(app);  //http 서버
+const wsServer = SocketIO(httpServer);
+
+wsServer.on("connection", (socket) => {
+    socket.on("enter_room", (msg, done) => {
+        console.log(msg);
+        setTimeout(() => {
+            done();
+        }, 1000);
+    //console.log(socket);
+    });
+});
+
+/* 
+
+// 아래 코드는 websocket ⭐️
 
 // function handleConnection(socket) {
 //     console.log(socket);
 // }
 // wss.on("connection", handleConnection);
-
-function onSocketClose() {
-    console.log("Disconnected from the Browser ❌");
-}
-
+// function onSocketClose() {
+//     console.log("Disconnected from the Browser ❌");
+// }
 // function onSocketMessage(message) {
 //     console.log(message);
 // }
+
+const wss = new WebSocket.Server({ server });
 
 const sockets = [];
 
@@ -60,7 +74,10 @@ wss.on("connection", (socket) => {
     //socket.send("hello");
 });
 
-server.listen(3000, handleListen);
+*/
+
+const handleListen = () => console.log(`Listening on http://localhost:3000`);
+httpServer.listen(3000, handleListen);
 
 {
     type: "message";
